@@ -6,11 +6,11 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{BEB56ED7-7FB2-48C9-B337-B3A8F2B8151F}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{159CEB30-6FA0-4261-BD2C-F7C9981338D4}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Heartbeat</RootNamespace>
-    <AssemblyName>Heartbeat</AssemblyName>
+    <RootNamespace>TestGame</RootNamespace>
+    <AssemblyName>TestGame</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MonoGamePlatform>Windows</MonoGamePlatform>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
@@ -24,7 +24,6 @@
     <DefineConstants>DEBUG;TRACE;WINDOWS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <IntermediateOutputPath>C:\Users\dplay\AppData\Local\Temp\vs3564.tmp\x86\Debug\</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -34,7 +33,6 @@
     <DefineConstants>TRACE;WINDOWS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <IntermediateOutputPath>C:\Users\dplay\AppData\Local\Temp\vs3564.tmp\x86\Release\</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Icon.ico</ApplicationIcon>
@@ -43,15 +41,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="ECS\ClassedStorage.cs" />
-    <Compile Include="ECS\Component.cs" />
-    <Compile Include="ECS\ECSObject.cs" />
-    <Compile Include="ECS\Entity.cs" />
-    <Compile Include="ECS\ECS.cs" />
-    <Compile Include="ECS\Interfaces.cs" />
-    <Compile Include="Engine.cs" />
-    <Compile Include="EngineConfig.cs" />
-    <Compile Include="GameState\GameState.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -62,9 +52,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <MonoGameContentReference Include="Content\Content.mgcb" />
+    <None Include="app.manifest" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Box2DXNA\Box2DXNA.csproj">
       <Project>{90dfa672-75ce-4dc9-89b5-b8fabfec97e2}</Project>
       <Name>Box2DXNA</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Heartbeat\Heartbeat.csproj">
+      <Project>{beb56ed7-7fb2-48c9-b337-b3a8f2b8151f}</Project>
+      <Name>Heartbeat</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

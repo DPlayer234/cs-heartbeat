@@ -1,6 +1,7 @@
 ﻿using System;
+using Heartbeat;
 
-namespace Heartbeat
+namespace TestGame
 {
 #if WINDOWS || LINUX
     /// <summary>
@@ -14,8 +15,7 @@ namespace Heartbeat
         [STAThread]
         static void Main()
         {
-            using (var game = new Game1())
-                game.Run();
+            Engine.Start();
         }
     }
 #endif
