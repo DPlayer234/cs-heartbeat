@@ -15,11 +15,7 @@ namespace TestGame
         [STAThread]
         static void Main()
         {
-            Engine.Initialize();
-
-            Engine.PushGameState(new GameState());
-
-            Engine.Start();
+            Engine.QuickStart<GameState>();
         }
     }
 #endif

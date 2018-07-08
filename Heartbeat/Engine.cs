@@ -11,22 +11,22 @@ using Microsoft.Xna.Framework.Input;
 namespace Heartbeat
 {
     /// <summary>
-    ///     An instantiable Engine object.
+    ///     The core of the Engine, the <seealso cref="Heartbeat"/>, so to speak.
+    ///     It is mostly accessed via static properties and methods, but
+    ///     <seealso cref="Engine.Game"/> and <seealso cref="Engine.Instance"/>
+    ///     are available for more direct access.
     /// </summary>
-    public class EngineInstance : Game
+    public sealed class Engine : Game
     {
-        /// <summary> The stack of contained <seealso cref="GameState"/>s. </summary>
-        private Stack<GameState> gameStates = new Stack<GameState>();
-
-        /// <summary> Checking for GameState changes </summary>
-        private GameStateChange checkGameState;
+        /// <summary> The queued game state transitions </summary>
+        private static GameStateChange gameStateTransitions;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="EngineInstance"/> class.
+        ///     Initializes a new instance of the <see cref="Engine"/> class.
         /// </summary>
-        public EngineInstance(EngineConfig config) : base()
+        private Engine(EngineConfig config) : base()
         {
-            this.GraphicsDeviceManager = new GraphicsDeviceManager(this);
+            Engine.GraphicsDeviceManager = new GraphicsDeviceManager(this);
 
             this.Content.RootDirectory = config.ContentRoot;
         }
@@ -35,26 +35,138 @@ namespace Heartbeat
         private delegate void GameStateChange();
 
         /// <summary>
-        ///     The active instance of the <see cref="EngineInstance"/>.
-        ///     This is null if <seealso cref="Create"/> was not called.
+        ///     The statuses the engine may have.
         /// </summary>
-        public static EngineInstance Instance { get; private set; }
+        public enum EngineStatus
+        {
+            /// <summary> The engine is inactive and was not created </summary>
+            Inactive,
+
+            /// <summary> The engine is idling </summary>
+            Idle,
+
+            /// <summary> The engine is updating </summary>
+            Update,
+
+            /// <summary> The engine is drawing </summary>
+            Draw,
+            
+            /// <summary> The engine is handling GameStates </summary>
+            HandlingGameStates
+        }
+
+        /// <summary>
+        ///     The active instance of the <see cref="Engine"/>.
+        ///     This is null if the Engine was not started.
+        /// </summary>
+        public static Engine Instance { get; private set; }
+
+        /// <summary> The current status of the Engine </summary>
+        public static EngineStatus Status { get; private set; } = EngineStatus.Inactive;
 
         /// <summary> The assigned <seealso cref="Microsoft.Xna.Framework.GraphicsDeviceManager"/>. </summary>
-        public GraphicsDeviceManager GraphicsDeviceManager { get; private set; }
+        public static GraphicsDeviceManager GraphicsDeviceManager { get; private set; }
 
         /// <summary> The used <seealso cref="Microsoft.Xna.Framework.Graphics.SpriteBatch"/>. </summary>
-        public SpriteBatch SpriteBatch { get; private set; }
+        public static SpriteBatch SpriteBatch { get; private set; }
 
         /// <summary>
         ///     The active <seealso cref="GameState"/>.
         /// </summary>
-        public GameState ActiveGameState
+        public static GameState ActiveGameState { get; private set; }
+
+        /// <summary> The unscaled time since the last frame </summary>
+        public static float UnscaledDeltaTime { get; private set; }
+
+        /// <summary> The scaled time since the last frame </summary>
+        public static float DeltaTime { get; private set; }
+
+        /// <summary> The <seealso cref="GameState.TimeScale"/> of <seealso cref="ActiveGameState"/> </summary>
+        public static float TimeScale
         {
             get
             {
-                return this.gameStates.Count > 0 ? this.gameStates.Peek() : null;
+                return Engine.ActiveGameState?.TimeScale ?? 1.0f;
             }
+        }
+
+        /// <summary>
+        ///     The active <see cref="Instance"/> as a <see cref="Microsoft.Xna.Framework.Game"/>.
+        /// </summary>
+        public static Game Game
+        {
+            get
+            {
+                return Engine.Instance as Game;
+            }
+        }
+
+        /// <summary>
+        ///     Creates and initializes the Engine.
+        /// </summary>
+        /// <exception cref="InvalidOperationException"><seealso cref="Create"/> was called before</exception>
+        public static void Create()
+        {
+            Engine.Create(EngineConfig.Default);
+        }
+
+        /// <summary>
+        ///     Creates and initializes the Engine.
+        /// </summary>
+        /// <param name="config">The used configuration</param>
+        /// <exception cref="InvalidOperationException"><seealso cref="Create(EngineConfig)"/> was called before</exception>
+        public static void Create(EngineConfig config)
+        {
+            if (Engine.Instance != null) throw new InvalidOperationException(nameof(Create) + " was called before.");
+
+            Engine.Instance = new Engine(config);
+
+            Engine.Status = EngineStatus.Idle;
+        }
+
+        /// <summary>
+        ///     Runs the Engine. You must have called <see cref="PushGameState{T}(T)"/> at this point already.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">There is no <seealso cref="ActiveGameState"/></exception>
+        public new static void Run()
+        {
+            Engine.DoGameStateTransitions();
+
+            if (Engine.ActiveGameState == null) throw new InvalidOperationException("There was no GameState pushed.");
+
+            using (Engine.Game)
+            {
+                Engine.Game.Run();
+            }
+        }
+
+        /// <summary>
+        ///     Quick starts the Engine.
+        ///     This includes creation, pushing a game state and running it.
+        /// </summary>
+        /// <typeparam name="T">The type of the GameState to push.</typeparam>
+        public static void QuickStart<T>() where T : GameState, new()
+        {
+            Engine.Create();
+
+            Engine.PushGameState(new T());
+
+            Engine.Run();
+        }
+
+        /// <summary>
+        ///     Quick starts the Engine.
+        ///     This includes creation, pushing a game state and running it.
+        /// </summary>
+        /// <typeparam name="T">The type of the GameState to push.</typeparam>
+        /// <param name="gameState">The GameState</param>
+        public static void QuickStart<T>(T gameState) where T : GameState
+        {
+            Engine.Create();
+
+            Engine.PushGameState(gameState);
+
+            Engine.Run();
         }
 
         /// <summary>
@@ -63,18 +175,32 @@ namespace Heartbeat
         /// <typeparam name="T">The type of the game state</typeparam>
         /// <param name="gameState">The game state to push</param>
         /// <returns>The added game state</returns>
-        public T PushGameState<T>(T gameState) where T : GameState
+        /// <exception cref="ArgumentNullException"><paramref name="gameState"/> is null</exception>
+        /// <exception cref="InvalidOperationException"><paramref name="gameState"/> was used/pushed before already</exception>
+        public static T PushGameState<T>(T gameState) where T : GameState
         {
-            this.checkGameState += delegate
+            if (gameState == null) throw new ArgumentNullException(nameof(gameState));
+            if (gameState.IsInUse) throw new InvalidOperationException("The given GameState was pushed/used already.");
+
+            gameState.IsInUse = true;
+
+            Engine.gameStateTransitions += delegate
             {
-                this.ActiveGameState?.OnPause();
+                // Pause last state
+                if (Engine.ActiveGameState != null)
+                {
+                    Engine.ActiveGameState.NextState = gameState;
 
-                this.gameStates.Push(gameState);
+                    Engine.ActiveGameState.OnPause();
 
-                gameState.Engine = this;
+                    gameState.LastState = Engine.ActiveGameState;
+                }
 
-                gameState.Initialize();
+                // Set and initialize next state
+                Engine.ActiveGameState = gameState;
+
                 gameState.OnResume();
+                gameState.Initialize();
             };
 
             return gameState;
@@ -83,19 +209,32 @@ namespace Heartbeat
         /// <summary>
         ///     Pops the <seealso cref="ActiveGameState"/>.
         /// </summary>
-        public void PopGameState()
+        public static void PopGameState()
         {
-            GameState gameState = this.ActiveGameState;
-
-            if (gameState != null)
+            Engine.gameStateTransitions += delegate
             {
-                this.gameStates.Pop();
+                // Store currently active state
+                GameState lastActiveState = Engine.ActiveGameState;
 
-                gameState.OnPause();
-                gameState.TrulyDestroy();
-            }
+                // If null, do nothing
+                if (lastActiveState == null) return;
 
-            this.ActiveGameState?.OnResume();
+                // Pause the state
+                lastActiveState.OnPause();
+
+                // Change the active game state and initialize
+                Engine.ActiveGameState = lastActiveState.LastState;
+
+                if (Engine.ActiveGameState != null)
+                {
+                    Engine.ActiveGameState.NextState = null;
+                    
+                    Engine.ActiveGameState.OnResume();
+                }
+
+                // Destroy the last state
+                lastActiveState.TrulyDestroy();
+            };
         }
 
         protected override void Initialize()
@@ -107,7 +246,7 @@ namespace Heartbeat
 
         protected override void LoadContent()
         {
-            this.SpriteBatch = new SpriteBatch(this.GraphicsDevice);
+            Engine.SpriteBatch = new SpriteBatch(GraphicsDevice);
 
             // Load via this.Content
         }
@@ -119,25 +258,61 @@ namespace Heartbeat
 
         protected override void Update(GameTime gameTime)
         {
-            this.checkGameState?.Invoke();
-            this.checkGameState = null;
+            Engine.SetGameTime(gameTime);
 
-            this.ActiveGameState?.Update();
+            Engine.DoGameStateTransitions();
+
+            Engine.Status = EngineStatus.Update;
+
+            Engine.ActiveGameState?.Update();
 
             base.Update(gameTime);
+
+            Engine.Status = EngineStatus.Idle;
         }
 
         protected override void Draw(GameTime gameTime)
         {
+            Engine.SetGameTime(gameTime);
+
+            Engine.Status = EngineStatus.Draw;
+
             this.GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            this.SpriteBatch.Begin();
+            Engine.SpriteBatch.Begin();
 
-            this.ActiveGameState?.Draw();
+            Engine.ActiveGameState?.Draw();
 
-            this.SpriteBatch.End();
+            Engine.SpriteBatch.End();
 
             base.Draw(gameTime);
+
+            Engine.Status = EngineStatus.Idle;
+        }
+
+        /// <summary>
+        ///     Executes all queued game state transitions.
+        /// </summary>
+        private static void DoGameStateTransitions()
+        {
+            Engine.Status = EngineStatus.HandlingGameStates;
+
+            Engine.gameStateTransitions?.Invoke();
+            Engine.gameStateTransitions = null;
+
+            Engine.Status = EngineStatus.Idle;
+        }
+
+        /// <summary>
+        ///     Sets <see cref="DeltaTime"/> and <see cref="UnscaledDeltaTime"/>.
+        /// </summary>
+        /// <param name="gameTime">The game time</param>
+        private static void SetGameTime(GameTime gameTime)
+        {
+            double seconds = gameTime.ElapsedGameTime.TotalSeconds;
+
+            Engine.UnscaledDeltaTime = (float)seconds;
+            Engine.DeltaTime = (float)(Engine.TimeScale * seconds);
         }
     }
 }

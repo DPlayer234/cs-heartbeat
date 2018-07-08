@@ -8,6 +8,9 @@ using Microsoft.Xna.Framework;
 
 namespace Heartbeat
 {
+    /// <summary>
+    ///     An Entity Component System.
+    /// </summary>
     public sealed class ECS
     {
         internal ClassedStorage<Entity> Entities = new ClassedStorage<Entity>();

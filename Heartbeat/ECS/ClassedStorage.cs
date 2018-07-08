@@ -15,9 +15,9 @@ namespace Heartbeat
     internal sealed class ClassedStorage<T> : IEnumerable<T> where T : ECSObject
     {
         /// <summary>
-        ///     Assigns the types to the index of a list.
+        ///     Assigns the types a list.
         /// </summary>
-        private Dictionary<Type, int> types = new Dictionary<Type, int>();
+        private Dictionary<Type, List<T>> typeDict = new Dictionary<Type, List<T>>();
 
         /// <summary>
         ///     Stores all lists of items.
@@ -46,8 +46,7 @@ namespace Heartbeat
             {
                 List<T> list = this.storage[si];
 
-                if (list.Count == 0) continue;
-                if (!(list[0] is IUpdatable)) continue;
+                if (list.Count == 0 || !(list[0] is IUpdatable)) continue;
 
                 for (int li = 0; li < list.Count; li++)
                 {
@@ -65,8 +64,7 @@ namespace Heartbeat
             {
                 List<T> list = this.storage[si];
 
-                if (list.Count == 0) continue;
-                if (!(list[0] is IUpdatable)) continue;
+                if (list.Count == 0 || !(list[0] is IUpdatable)) continue;
 
                 for (int li = 0; li < list.Count; li++)
                 {
@@ -84,8 +82,7 @@ namespace Heartbeat
             {
                 List<T> list = this.storage[si];
 
-                if (list.Count == 0) continue;
-                if (!(list[0] is IDrawable)) continue;
+                if (list.Count == 0 || !(list[0] is IDrawable)) continue;
 
                 for (int li = 0; li < list.Count; li++)
                 {
@@ -110,7 +107,7 @@ namespace Heartbeat
         /// <returns>An element or null if none is found</returns>
         public TSub GetFirstExact<TSub>() where TSub : T
         {
-            return this.GetTypeList(typeof(TSub)).FirstOrDefault() as TSub;
+            return this.GetTypeList(typeof(TSub)).FirstSafe() as TSub;
         }
 
         /// <summary>
@@ -120,13 +117,13 @@ namespace Heartbeat
         /// <returns>An element or null if none is found</returns>
         public TSub GetFirstAny<TSub>() where TSub : T
         {
-            foreach (KeyValuePair<Type, int> data in this.types)
+            foreach (KeyValuePair<Type, List<T>> data in this.typeDict)
             {
-                List<T> list = this.storage[data.Value];
+                List<T> list = data.Value;
 
                 if (list.Count > 0 && data.Key.IsSubclassOf(typeof(TSub)))
                 {
-                    return list.First() as TSub;
+                    return list[0] as TSub;
                 }
             }
 
@@ -161,9 +158,9 @@ namespace Heartbeat
         {
             List<TSub> subs = new List<TSub>();
 
-            foreach (KeyValuePair<Type, int> data in this.types)
+            foreach (KeyValuePair<Type, List<T>> data in this.typeDict)
             {
-                List<T> list = this.storage[data.Value];
+                List<T> list = data.Value;
 
                 if (list.Count > 0 && data.Key.IsSubclassOf(typeof(TSub)))
                 {
@@ -221,18 +218,18 @@ namespace Heartbeat
         /// <returns>A list</returns>
         private List<T> GetTypeList(Type specType)
         {
-            if (!this.types.ContainsKey(specType))
+            if (!this.typeDict.ContainsKey(specType))
             {
                 List<T> list = new List<T>();
 
                 this.storage.Add(list);
 
-                this.types.Add(specType, this.storage.Count - 1);
+                this.typeDict.Add(specType, list);
 
                 return list;
             }
 
-            return this.storage[this.types[specType]];
+            return this.typeDict[specType];
         }
 
         /// <summary>

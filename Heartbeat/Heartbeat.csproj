@@ -43,7 +43,6 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Heartbeat.cs" />
     <Compile Include="ECS\ClassedStorage.cs" />
     <Compile Include="ECS\Component.cs" />
     <Compile Include="ECS\ECSObject.cs" />
@@ -52,6 +51,7 @@
     <Compile Include="ECS\Interfaces.cs" />
     <Compile Include="Engine.cs" />
     <Compile Include="EngineConfig.cs" />
+    <Compile Include="Extension\ListExtension.cs" />
     <Compile Include="GameState\GameState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

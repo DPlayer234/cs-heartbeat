@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Heartbeat
 {
-    public class Component : ECSObject
+    public abstract class Component : ECSObject
     {
         public Entity Entity { get; private set; }
 
