@@ -43,6 +43,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Heartbeat.cs" />
     <Compile Include="ECS\ClassedStorage.cs" />
     <Compile Include="ECS\Component.cs" />
     <Compile Include="ECS\ECSObject.cs" />
@@ -66,6 +67,9 @@
       <Project>{90dfa672-75ce-4dc9-89b5-b8fabfec97e2}</Project>
       <Name>Box2DXNA</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Exceptions\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />

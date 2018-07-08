@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework;
 
 namespace Heartbeat
 {
-    public class ECS
+    public sealed class ECS
     {
         internal ClassedStorage<Entity> Entities = new ClassedStorage<Entity>();
 
@@ -36,7 +36,10 @@ namespace Heartbeat
         {
             this.Entities.UpdateAll();
             this.Components.UpdateAll();
+        }
 
+        public void LateUpdate()
+        {
             this.Entities.LateUpdateAll();
             this.Components.LateUpdateAll();
         }
@@ -45,6 +48,12 @@ namespace Heartbeat
         {
             this.Components.DrawAll();
             this.Entities.DrawAll();
+        }
+
+        internal void TrulyDestroy()
+        {
+            this.Components.DestroyAll();
+            this.Entities.DestroyAll();
         }
     }
 }

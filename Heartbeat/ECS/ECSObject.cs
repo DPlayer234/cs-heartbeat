@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Heartbeat
 {
     /// <summary>
-    ///     Base class for all objects in an <see cref="Heartbeat.ECS.EntityComponentSystem"/>
+    ///     Base class for all objects in an <see cref="global::Heartbeat.ECS.EntityComponentSystem"/>
     /// </summary>
     public abstract class ECSObject
     {

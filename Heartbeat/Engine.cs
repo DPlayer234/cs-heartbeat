@@ -11,89 +11,91 @@ using Microsoft.Xna.Framework.Input;
 namespace Heartbeat
 {
     /// <summary>
-    ///     The Engine itself.
+    ///     An instantiable Engine object.
     /// </summary>
-    public class Engine : Game
+    public class EngineInstance : Game
     {
-        /// <summary>
-        ///     The assigned <seealso cref="Microsoft.Xna.Framework.GraphicsDeviceManager"/>.
-        /// </summary>
-        private GraphicsDeviceManager graphicsDeviceManager;
+        /// <summary> The stack of contained <seealso cref="GameState"/>s. </summary>
+        private Stack<GameState> gameStates = new Stack<GameState>();
+
+        /// <summary> Checking for GameState changes </summary>
+        private GameStateChange checkGameState;
 
         /// <summary>
-        ///     The used <seealso cref="Microsoft.Xna.Framework.Graphics.SpriteBatch"/>.
+        ///     Initializes a new instance of the <see cref="EngineInstance"/> class.
         /// </summary>
-        private SpriteBatch spriteBatch;
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="Engine"/> class.
-        /// </summary>
-        private Engine(EngineConfig config) : base()
+        public EngineInstance(EngineConfig config) : base()
         {
-            this.graphicsDeviceManager = new GraphicsDeviceManager(this);
+            this.GraphicsDeviceManager = new GraphicsDeviceManager(this);
 
             this.Content.RootDirectory = config.ContentRoot;
         }
 
-        /// <summary>
-        ///     The active instance of the <see cref="Engine"/>.
-        ///     This is null if the Engine is not running.
-        /// </summary>
-        public static Engine Instance { get; private set; }
+        /// <summary> Delegate Type for GameState changes </summary>
+        private delegate void GameStateChange();
 
         /// <summary>
-        ///     Indicates whether the Engine is running.
+        ///     The active instance of the <see cref="EngineInstance"/>.
+        ///     This is null if <seealso cref="Create"/> was not called.
         /// </summary>
-        public static bool IsRunning
+        public static EngineInstance Instance { get; private set; }
+
+        /// <summary> The assigned <seealso cref="Microsoft.Xna.Framework.GraphicsDeviceManager"/>. </summary>
+        public GraphicsDeviceManager GraphicsDeviceManager { get; private set; }
+
+        /// <summary> The used <seealso cref="Microsoft.Xna.Framework.Graphics.SpriteBatch"/>. </summary>
+        public SpriteBatch SpriteBatch { get; private set; }
+
+        /// <summary>
+        ///     The active <seealso cref="GameState"/>.
+        /// </summary>
+        public GameState ActiveGameState
         {
             get
             {
-                return Engine.Instance?.IsActive ?? false;
+                return this.gameStates.Count > 0 ? this.gameStates.Peek() : null;
             }
         }
 
         /// <summary>
-        ///     The assigned <seealso cref="Microsoft.Xna.Framework.GraphicsDeviceManager"/>.
+        ///     Pushes a <seealso cref="GameState"/> to the execution stack.
         /// </summary>
-        public static GraphicsDeviceManager GraphicsDeviceManager
+        /// <typeparam name="T">The type of the game state</typeparam>
+        /// <param name="gameState">The game state to push</param>
+        /// <returns>The added game state</returns>
+        public T PushGameState<T>(T gameState) where T : GameState
         {
-            get
+            this.checkGameState += delegate
             {
-                return Engine.Instance?.graphicsDeviceManager;
-            }
+                this.ActiveGameState?.OnPause();
+
+                this.gameStates.Push(gameState);
+
+                gameState.Engine = this;
+
+                gameState.Initialize();
+                gameState.OnResume();
+            };
+
+            return gameState;
         }
 
         /// <summary>
-        ///     The used <seealso cref="Microsoft.Xna.Framework.Graphics.SpriteBatch"/>.
+        ///     Pops the <seealso cref="ActiveGameState"/>.
         /// </summary>
-        public static SpriteBatch SpriteBatch
+        public void PopGameState()
         {
-            get
+            GameState gameState = this.ActiveGameState;
+
+            if (gameState != null)
             {
-                return Engine.Instance?.spriteBatch;
-            }
-        }
+                this.gameStates.Pop();
 
-        /// <summary>
-        ///     Starts the Engine.
-        /// </summary>
-        public static void Start()
-        {
-            Engine.Start(EngineConfig.Default);
-        }
-        
-        /// <summary>
-        ///     Starts the Engine.
-        /// </summary>
-        /// <param name="config">The used configuration</param>
-        public static void Start(EngineConfig config)
-        {
-            using (Engine.Instance = new Engine(config))
-            {
-                Engine.Instance.Run();
+                gameState.OnPause();
+                gameState.TrulyDestroy();
             }
 
-            Engine.Instance = null;
+            this.ActiveGameState?.OnResume();
         }
 
         protected override void Initialize()
@@ -105,7 +107,7 @@ namespace Heartbeat
 
         protected override void LoadContent()
         {
-            this.spriteBatch = new SpriteBatch(this.GraphicsDevice);
+            this.SpriteBatch = new SpriteBatch(this.GraphicsDevice);
 
             // Load via this.Content
         }
@@ -117,6 +119,11 @@ namespace Heartbeat
 
         protected override void Update(GameTime gameTime)
         {
+            this.checkGameState?.Invoke();
+            this.checkGameState = null;
+
+            this.ActiveGameState?.Update();
+
             base.Update(gameTime);
         }
 
@@ -124,9 +131,11 @@ namespace Heartbeat
         {
             this.GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            this.spriteBatch.Begin();
+            this.SpriteBatch.Begin();
 
-            this.spriteBatch.End();
+            this.ActiveGameState?.Draw();
+
+            this.SpriteBatch.End();
 
             base.Draw(gameTime);
         }

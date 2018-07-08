@@ -12,7 +12,7 @@ namespace Heartbeat
     ///     a certain type.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class ClassedStorage<T> : IEnumerable<T> where T : ECSObject
+    internal sealed class ClassedStorage<T> : IEnumerable<T> where T : ECSObject
     {
         /// <summary>
         ///     Assigns the types to the index of a list.
@@ -190,6 +190,27 @@ namespace Heartbeat
                     yield return item;
                 }
             }
+        }
+
+        /// <summary>
+        ///     Destroys all items.
+        /// </summary>
+        internal void DestroyAll()
+        {
+            for (int si = 0; si < this.storage.Count; si++)
+            {
+                List<T> list = this.storage[si];
+
+                for (int li = list.Count - 1; li >= 0; li--)
+                {
+                    T item = list[li];
+                    
+                    item.TrulyDestroy();
+                    list.RemoveAt(li);
+                }
+            }
+
+            this.ContainsMarkedItems = false;
         }
 
         /// <summary>

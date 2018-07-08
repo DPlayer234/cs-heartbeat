@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Content;
 namespace Heartbeat
 {
     /// <summary>
-    ///     Defines the configuration of the <see cref="Engine"/>.
+    ///     Defines the configuration of the <see cref="EngineInstance"/>.
     /// </summary>
     public class EngineConfig
     {
@@ -21,7 +21,7 @@ namespace Heartbeat
 
         /// <summary>
         ///     The default <seealso cref="EngineConfig"/> when none is
-        ///     passed to the <seealso cref="Engine.Start(EngineConfig)"/>.
+        ///     passed to the <seealso cref="EngineInstance.Create(EngineConfig)"/>.
         ///     May be modified.
         /// </summary>
         public static EngineConfig Default = new EngineConfig();
