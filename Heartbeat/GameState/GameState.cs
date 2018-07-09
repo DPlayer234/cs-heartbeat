@@ -65,6 +65,7 @@ namespace Heartbeat
 
         /// <summary>
         ///     Override to initialize the GameState when it is pushed.
+        ///     You do not need to call this.
         /// </summary>
         public virtual void Initialize() { }
 
@@ -73,6 +74,8 @@ namespace Heartbeat
         /// </summary>
         public virtual void Update()
         {
+            this.ECS.DestroyMarkedItems();
+
             this.ECS.Update();
 
             this.PhysicWorld.Step(Engine.DeltaTime, this.VelocityIterations, this.PositionIteration);

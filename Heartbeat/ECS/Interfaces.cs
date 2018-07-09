@@ -3,7 +3,7 @@
     /// <summary>
     ///     Makes an <see cref="ECSObject"/> updatable.
     /// </summary>
-    public interface IUpdatable
+    public interface IUpdateObject
     {
         void Update();
         void LateUpdate();
@@ -12,7 +12,7 @@
     /// <summary>
     ///     Makes an <see cref="ECSObject"/> drawable.
     /// </summary>
-    public interface IDrawable
+    public interface IDrawObject
     {
         void Draw();
     }
@@ -20,7 +20,7 @@
     /// <summary>
     ///     Allows an <see cref="ECSObject"/> to handle physics callbacks.
     /// </summary>
-    public interface IPhysicHandler
+    public interface IPhysicObject
     {
         void OnCollisionBegin();
         void OnCollisionStay();

@@ -12,7 +12,7 @@ namespace Heartbeat
     public abstract class ECSObject
     {
         /// <summary> The ECS this object is attached to. </summary>
-        public ECS ECS { get; private set; }
+        public ECS ECS { get; internal set; }
 
         /// <summary> Indicates whether this object was marked for destruction. </summary>
         public bool MarkedForDestruction { get; protected set; }

@@ -76,6 +76,12 @@ namespace Heartbeat
         public static GameState ActiveGameState { get; private set; }
 
         /// <summary> The unscaled time since the last frame </summary>
+        public static double PreciseUnscaledDeltaTime { get; private set; }
+
+        /// <summary> The scaled time since the last frame </summary>
+        public static double PreciseDeltaTime { get; private set; }
+
+        /// <summary> The unscaled time since the last frame </summary>
         public static float UnscaledDeltaTime { get; private set; }
 
         /// <summary> The scaled time since the last frame </summary>
@@ -125,15 +131,10 @@ namespace Heartbeat
         }
 
         /// <summary>
-        ///     Runs the Engine. You must have called <see cref="PushGameState{T}(T)"/> at this point already.
+        ///     Runs the Engine. You should have called <see cref="PushGameState{T}(T)"/> at this point already.
         /// </summary>
-        /// <exception cref="InvalidOperationException">There is no <seealso cref="ActiveGameState"/></exception>
         public new static void Run()
         {
-            Engine.DoGameStateTransitions();
-
-            if (Engine.ActiveGameState == null) throw new InvalidOperationException("There was no GameState pushed.");
-
             using (Engine.Game)
             {
                 Engine.Game.Run();
@@ -311,8 +312,11 @@ namespace Heartbeat
         {
             double seconds = gameTime.ElapsedGameTime.TotalSeconds;
 
-            Engine.UnscaledDeltaTime = (float)seconds;
-            Engine.DeltaTime = (float)(Engine.TimeScale * seconds);
+            Engine.PreciseUnscaledDeltaTime = seconds;
+            Engine.PreciseDeltaTime = Engine.TimeScale * seconds;
+
+            Engine.UnscaledDeltaTime = (float)Engine.PreciseUnscaledDeltaTime;
+            Engine.DeltaTime = (float)Engine.PreciseDeltaTime;
         }
     }
 }

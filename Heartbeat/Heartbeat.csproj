@@ -43,7 +43,8 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="ECS\ClassedStorage.cs" />
+    <Compile Include="ECS\ECSStorage.cs" />
+    <Compile Include="Misc\ClassedStorage.cs" />
     <Compile Include="ECS\Component.cs" />
     <Compile Include="ECS\ECSObject.cs" />
     <Compile Include="ECS\Entity.cs" />
@@ -53,6 +54,9 @@
     <Compile Include="EngineConfig.cs" />
     <Compile Include="Extension\ListExtension.cs" />
     <Compile Include="GameState\GameState.cs" />
+    <Compile Include="Misc\Coroutine.cs" />
+    <Compile Include="Misc\Reference.cs" />
+    <Compile Include="Misc\Timer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

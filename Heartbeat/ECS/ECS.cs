@@ -13,9 +13,9 @@ namespace Heartbeat
     /// </summary>
     public sealed class ECS
     {
-        internal ClassedStorage<Entity> Entities = new ClassedStorage<Entity>();
+        internal ECSStorage<Entity> Entities = new ECSStorage<Entity>();
 
-        internal ClassedStorage<Component> Components = new ClassedStorage<Component>();
+        internal ECSStorage<Component> Components = new ECSStorage<Component>();
         
         internal void Initialize()
         {
@@ -28,9 +28,7 @@ namespace Heartbeat
 
         public T AddEntity<T>(T entity) where T : Entity
         {
-            this.Entities.Add(entity);
-
-            entity.Initialize();
+            entity.AttachToECS(this);
 
             return entity;
         }
@@ -53,10 +51,22 @@ namespace Heartbeat
             this.Entities.DrawAll();
         }
 
-        internal void TrulyDestroy()
+        public void DestroyMarkedItems()
+        {
+            this.Entities.DestroyMarkedItems();
+            this.Components.DestroyMarkedItems();
+        }
+
+        public void DestroyAll()
         {
             this.Components.DestroyAll();
             this.Entities.DestroyAll();
+        }
+
+        internal void TrulyDestroy()
+        {
+            this.DestroyAll();
+            this.DestroyMarkedItems();
         }
     }
 }

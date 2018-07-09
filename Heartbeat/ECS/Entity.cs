@@ -8,7 +8,7 @@ namespace Heartbeat
 {
     public class Entity : ECSObject
     {
-        internal ClassedStorage<Component> Components = new ClassedStorage<Component>();
+        internal ECSStorage<Component> Components = new ECSStorage<Component>();
 
         public bool IsAttachedToECS
         {
@@ -20,9 +20,7 @@ namespace Heartbeat
 
         public T AddComponent<T>(T component) where T : Component
         {
-            this.Components.Add(component);
-
-            component.Initialize();
+            component.AttachToEntity(this);
 
             return component;
         }
@@ -49,7 +47,18 @@ namespace Heartbeat
 
         public override void Destroy()
         {
+            this.ECS.Entities.ContainsMarkedItems = true;
+            this.Components.DestroyAll();
+
             base.Destroy();
+        }
+
+        internal void AttachToECS(ECS ecs)
+        {
+            this.ECS = ecs;
+            this.ECS.Entities.Add(this);
+
+            this.Initialize();
         }
     }
 }
