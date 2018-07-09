@@ -10,7 +10,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace TestGame
 {
-    public class TestEntity : Entity, IUpdateObject
+    public class TestEntity : Entity, IUpdateObject, IDrawObject
     {
         public int Frames = 0;
 
@@ -26,6 +26,17 @@ namespace TestGame
         {
             // Do nothing
         }
+
+        public void Draw()
+        {
+            var print = (this.GetAnyComponents<TestComponent>()?.ToStringCollection() ?? "null");
+
+            Engine.SpriteBatch.DrawString(
+                TestState.Font,
+                print,
+                new Vector2(10, 30),
+                Color.Black);
+        }
     }
 
     public class TestComponent : Component, IDrawObject
@@ -34,11 +45,13 @@ namespace TestGame
         {
             Engine.SpriteBatch.DrawString(
                 TestState.Font,
-                (this.Entity as TestEntity)?.Frames.ToString(),
+                (this.Entity as TestEntity)?.Frames.ToString() ?? "null",
                 new Vector2(10, 10),
                 Color.Black);
         }
     }
+
+    public class TestComponentSub : TestComponent { }
 
     public class TestState : GameState
     {
@@ -52,7 +65,8 @@ namespace TestGame
 
             var entity = this.ECS.AddEntity(new TestEntity());
 
-            var component = entity.AddComponent(new TestComponent());
+            entity.AddComponent(new TestComponentSub());
+            entity.AddComponent(new TestComponent());
         }
     }
 }

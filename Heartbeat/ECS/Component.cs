@@ -18,6 +18,26 @@ namespace Heartbeat
             }
         }
 
+        public T GetComponent<T>() where T : Component
+        {
+            return this.Entity.GetComponent<T>();
+        }
+
+        public List<T> GetComponents<T>() where T : Component
+        {
+            return this.Entity.GetComponents<T>();
+        }
+
+        public T GetAnyComponent<T>() where T : Component
+        {
+            return this.Entity.GetAnyComponent<T>();
+        }
+
+        public List<T> GetAnyComponents<T>() where T : Component
+        {
+            return this.Entity.GetAnyComponents<T>();
+        }
+
         public override void Destroy()
         {
             base.Destroy();
@@ -30,9 +50,6 @@ namespace Heartbeat
         {
             this.Entity = entity;
             this.ECS = entity.ECS;
-
-            this.Entity.Components.Add(this);
-            this.ECS.Components.Add(this);
 
             this.Initialize();
         }

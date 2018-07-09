@@ -28,6 +28,7 @@ namespace Heartbeat
 
         public T AddEntity<T>(T entity) where T : Entity
         {
+            this.Entities.Add(entity);
             entity.AttachToECS(this);
 
             return entity;

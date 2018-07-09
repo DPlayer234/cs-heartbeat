@@ -26,7 +26,7 @@ namespace Heartbeat
         {
             for (int si = 0; si < this.storage.Count; si++)
             {
-                IList list = this.storage[si] as IList;
+                IList list = this.storage[si];
 
                 if (list.Count == 0 || !(list[0] is IUpdateObject)) continue;
 
@@ -44,7 +44,7 @@ namespace Heartbeat
         {
             for (int si = 0; si < this.storage.Count; si++)
             {
-                IList list = this.storage[si] as IList;
+                IList list = this.storage[si];
 
                 if (list.Count == 0 || !(list[0] is IUpdateObject)) continue;
 
@@ -62,7 +62,7 @@ namespace Heartbeat
         {
             for (int si = 0; si < this.storage.Count; si++)
             {
-                IList list = this.storage[si] as IList;
+                IList list = this.storage[si];
                 
                 if (list.Count == 0 || !(list[0] is IDrawObject)) continue;
 
@@ -84,7 +84,7 @@ namespace Heartbeat
 
             for (int si = 0; si < this.storage.Count; si++)
             {
-                IList list = this.storage[si] as IList;
+                IList list = this.storage[si];
 
                 for (int li = list.Count - 1; li >= 0; li--)
                 {
@@ -106,7 +106,7 @@ namespace Heartbeat
         {
             for (int si = 0; si < this.storage.Count; si++)
             {
-                IList list = this.storage[si] as IList;
+                IList list = this.storage[si];
 
                 for (int li = list.Count - 1; li >= 0; li--)
                 {
@@ -124,7 +124,7 @@ namespace Heartbeat
         {
             for (int si = 0; si < this.storage.Count; si++)
             {
-                IList list = this.storage[si] as IList;
+                IList list = this.storage[si];
 
                 for (int li = list.Count - 1; li >= 0; li--)
                 {

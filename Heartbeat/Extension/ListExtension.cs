@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,6 +21,24 @@ namespace Heartbeat
         public static T FirstSafe<T>(this IList<T> self)
         {
             return self.Count > 0 ? self[0] : default(T);
+        }
+
+        /// <summary>
+        ///     Turns a collection into a string.
+        /// </summary>
+        /// <param name="self">The collection in question</param>
+        /// <param name="separator">The separator between the elements</param>
+        /// <returns>A string version</returns>
+        public static string ToStringCollection(this ICollection self, string separator = ", ")
+        {
+            string output = string.Empty;
+
+            foreach (object item in self)
+            {
+                output += item + separator;
+            }
+
+            return output;
         }
     }
 }

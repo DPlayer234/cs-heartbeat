@@ -17,12 +17,12 @@ namespace Heartbeat
         /// <summary>
         ///     Stores all lists of items.
         /// </summary>
-        protected List<object> storage = new List<object>();
+        protected List<IList> storage = new List<IList>();
 
         /// <summary>
         ///     Assigns the types a list.
         /// </summary>
-        private Dictionary<Type, object> typeDict = new Dictionary<Type, object>();
+        private Dictionary<Type, IList> typeDict = new Dictionary<Type, IList>();
 
         /// <summary>
         ///     Adds an item to the storage.
@@ -55,9 +55,11 @@ namespace Heartbeat
         {
             for (int i = 0; i < this.storage.Count; i++)
             {
-                if (this.storage[i] is List<TSub> list && list.Count > 0)
+                IList list = this.storage[i];
+
+                if (list.Count > 0 && list[0] is TSub)
                 {
-                    return list[0];
+                    return list[0] as TSub;
                 }
             }
 
@@ -85,7 +87,9 @@ namespace Heartbeat
 
             for (int i = 0; i < this.storage.Count; i++)
             {
-                if (this.storage[i] is List<TSub> list && list.Count > 0)
+                IList list = this.storage[i];
+
+                if (list.Count > 0 && list[0] is TSub)
                 {
                     foreach (TSub item in list)
                     {

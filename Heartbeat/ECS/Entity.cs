@@ -20,6 +20,9 @@ namespace Heartbeat
 
         public T AddComponent<T>(T component) where T : Component
         {
+            this.Components.Add(component);
+            this.ECS.Components.Add(component);
+
             component.AttachToEntity(this);
 
             return component;
@@ -56,7 +59,6 @@ namespace Heartbeat
         internal void AttachToECS(ECS ecs)
         {
             this.ECS = ecs;
-            this.ECS.Entities.Add(this);
 
             this.Initialize();
         }
