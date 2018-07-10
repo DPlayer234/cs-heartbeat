@@ -11,7 +11,7 @@ namespace Heartbeat
     ///     Interface for the creation of usable coroutines.
     /// </summary>
     /// <typeparam name="TResult">The type of result values</typeparam>
-    public interface ICoroutine<TResult>
+    public interface ICoroutine<out TResult> : IEnumerable<TResult>
     {
         /// <summary> The last result of <seealso cref="Resume"/> </summary>
         TResult LastResult { get; }
@@ -89,6 +89,27 @@ namespace Heartbeat
         public void Reset()
         {
             this.procedure.Reset();
+        }
+
+        /// <summary>
+        ///     Returns an enumerator which allows you to iterate over all the results of the coroutine.
+        /// </summary>
+        /// <returns>The enumerator</returns>
+        IEnumerator<TResult> IEnumerable<TResult>.GetEnumerator()
+        {
+            while (!this.Finished)
+            {
+                yield return this.Resume();
+            }
+        }
+
+        /// <summary>
+        ///     Returns an enumerator which allows you to iterate over all the results of the coroutine.
+        /// </summary>
+        /// <returns>The enumerator</returns>
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return (this as IEnumerable<TResult>).GetEnumerator();
         }
     }
 

@@ -24,6 +24,16 @@ namespace Heartbeat
         }
 
         /// <summary>
+        ///     Returns the first element in the list or the default value.
+        /// </summary>
+        /// <param name="self">The list to get the first item of</param>
+        /// <returns>The first item or the default value/returns>
+        public static object FirstSafe(this IList self)
+        {
+            return self.Count > 0 ? self[0] : default(object);
+        }
+
+        /// <summary>
         ///     Turns a collection into a string.
         /// </summary>
         /// <param name="self">The collection in question</param>

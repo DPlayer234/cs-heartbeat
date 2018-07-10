@@ -29,7 +29,15 @@ namespace TestGame
 
         public void Draw()
         {
-            var print = (this.GetAnyComponents<TestComponent>()?.ToStringCollection() ?? "null");
+            var print =
+                (this.GetComponent<TestComponent>()?.ToString() ?? "null") + " E\n" +
+                (this.GetAnyComponent<TestComponent>()?.ToString() ?? "null") + " A\n" +
+                (this.GetComponent<TestComponentSub>()?.ToString() ?? "null") + " ES\n" +
+                (this.GetAnyComponent<TestComponentSub>()?.ToString() ?? "null") + " AS\n" +
+                (this.GetComponents<TestComponent>()?.ToStringCollection() ?? "null") + " EL\n" +
+                (this.GetAnyComponents<TestComponent>()?.ToStringCollection() ?? "null") + " AL\n" +
+                (this.GetComponents<TestComponentSub>()?.ToStringCollection() ?? "null") + " ESL\n" +
+                (this.GetAnyComponents<TestComponentSub>()?.ToStringCollection() ?? "null") + " ASL";
 
             Engine.SpriteBatch.DrawString(
                 TestState.Font,
